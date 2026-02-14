@@ -1,5 +1,7 @@
 package com.training.backend_app.controller;
 
+import com.training.backend_app.dto.BulkEnrollRequest;
+import com.training.backend_app.dto.CourseResponse;
 import com.training.backend_app.dto.EnrollmentRequest;
 import com.training.backend_app.dto.EnrollmentResponse;
 import com.training.backend_app.service.EnrollmentService;
@@ -39,5 +41,16 @@ public class EnrollmentController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<EnrollmentResponse>> getEnrollmentsByCourseId(@PathVariable Long courseId) {
         return ResponseEntity.ok(enrollmentService.getEnrollmentsByCourseId(courseId));
+    }
+
+    @PostMapping("/bulk")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<EnrollmentResponse>> bulkEnrollStudents(@Valid @RequestBody BulkEnrollRequest request) {
+        return ResponseEntity.ok(enrollmentService.bulkEnrollStudents(request));
+    }
+
+    @GetMapping("/student/{studentId}/courses")
+    public ResponseEntity<List<CourseResponse>> getStudentCourses(@PathVariable Long studentId) {
+        return ResponseEntity.ok(enrollmentService.getStudentCourses(studentId));
     }
 }

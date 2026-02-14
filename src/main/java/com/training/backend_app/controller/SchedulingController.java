@@ -46,4 +46,10 @@ public class SchedulingController {
     public ResponseEntity<List<SlotResponse>> getSlotsByTrainerId(@PathVariable Long trainerId) {
         return ResponseEntity.ok(schedulingService.getSlotsByTrainerId(trainerId));
     }
+
+    @PutMapping("/weeks/{weekId}/slots/{slotId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SlotResponse> updateSlot(@PathVariable Long weekId, @PathVariable Long slotId, @Valid @RequestBody SlotRequest request) {
+        return ResponseEntity.ok(schedulingService.updateSlot(slotId, request));
+    }
 }

@@ -2,6 +2,8 @@ package com.training.backend_app.service;
 
 import com.training.backend_app.dto.AuthResponse;
 import com.training.backend_app.dto.LoginRequest;
+import com.training.backend_app.dto.PasswordResetRequest;
+import com.training.backend_app.dto.PasswordResetResponse;
 import com.training.backend_app.dto.RegisterRequest;
 import com.training.backend_app.dto.UserResponse;
 import com.training.backend_app.entity.User;
@@ -79,6 +81,24 @@ public class AuthService {
                 .email(user.getEmail())
                 .role(user.getRole())
                 .createdAt(user.getCreatedAt())
+                .build();
+    }
+
+    public PasswordResetResponse resetPassword(PasswordResetRequest request) {
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new RuntimeException("Passwords do not match");
+        }
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        return PasswordResetResponse.builder()
+                .message("Password reset successfully")
+                .success(true)
+                .email(user.getEmail())
                 .build();
     }
 }

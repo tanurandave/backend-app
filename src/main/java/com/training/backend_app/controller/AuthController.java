@@ -2,11 +2,15 @@ package com.training.backend_app.controller;
 
 import com.training.backend_app.dto.AuthResponse;
 import com.training.backend_app.dto.LoginRequest;
+import com.training.backend_app.dto.PasswordResetRequest;
+import com.training.backend_app.dto.PasswordResetResponse;
 import com.training.backend_app.dto.RegisterRequest;
 import com.training.backend_app.dto.UserResponse;
 import com.training.backend_app.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
@@ -25,11 +30,17 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        logger.debug("Login attempt for email={}", request.getEmail());
         return ResponseEntity.ok(authService.login(request));
     }
 
     @GetMapping("/user/{id}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(authService.getUserById(id));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<PasswordResetResponse> forgotPassword(@Valid @RequestBody PasswordResetRequest request) {
+        return ResponseEntity.ok(authService.resetPassword(request));
     }
 }

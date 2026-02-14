@@ -1,11 +1,14 @@
 package com.training.backend_app.controller;
 
+import com.training.backend_app.dto.BulkUploadResponse;
 import com.training.backend_app.entity.User;
 import com.training.backend_app.repository.UserRepository;
+import com.training.backend_app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -17,6 +20,9 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private UserService userService;
+
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<User>> getAllUsers() {
@@ -27,6 +33,24 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<User>> getUsersByRole(@PathVariable User.Role role) {
         return ResponseEntity.ok(userRepository.findByRole(role));
+    }
+
+    @GetMapping("/trainers")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<User>> getAllTrainers() {
+        return ResponseEntity.ok(userRepository.findByRole(User.Role.TRAINER));
+    }
+
+    @GetMapping("/students")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<User>> getAllStudents() {
+        return ResponseEntity.ok(userRepository.findByRole(User.Role.STUDENT));
+    }
+
+    @PostMapping("/bulk-upload")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<BulkUploadResponse> bulkUploadStudents(@RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(userService.bulkUploadStudents(file));
     }
 
     @GetMapping("/{id}")

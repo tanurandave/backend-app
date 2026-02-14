@@ -40,6 +40,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/users/bulk-upload").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/trainer/**").hasRole("TRAINER")
                 .requestMatchers("/api/student/**").hasAnyRole("STUDENT", "ADMIN")

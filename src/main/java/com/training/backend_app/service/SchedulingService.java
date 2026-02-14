@@ -140,4 +140,53 @@ public class SchedulingService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    public SlotResponse updateSlot(Long slotId, SlotRequest request) {
+        Slot slot = slotRepository.findById(slotId)
+                .orElseThrow(() -> new RuntimeException("Slot not found"));
+
+        Module module = moduleRepository.findById(request.getModuleId())
+                .orElseThrow(() -> new RuntimeException("Module not found"));
+
+        User trainer = userRepository.findById(request.getTrainerId())
+                .orElseThrow(() -> new RuntimeException("Trainer not found"));
+
+        if (trainer.getRole() != User.Role.TRAINER) {
+            throw new RuntimeException("User is not a trainer");
+        }
+
+        // Check if trainer is already booked for this slot (excluding current slot)
+        DayOfWeek dayOfWeek = DayOfWeek.valueOf(request.getDayOfWeek().toUpperCase());
+        
+        boolean trainerBooked = slotRepository.findByTrainerAndDayAndSlot(
+                request.getTrainerId(), dayOfWeek, request.getSlotNumber())
+                .filter(s -> !s.getId().equals(slotId))
+                .isPresent();
+
+        if (trainerBooked) {
+            throw new RuntimeException("Trainer is already booked for this slot");
+        }
+
+        // Update slot
+        slot.setModule(module);
+        slot.setTrainer(trainer);
+        slot.setDayOfWeek(dayOfWeek);
+        slot.setSlotNumber(request.getSlotNumber());
+
+        slotRepository.save(slot);
+
+        return SlotResponse.builder()
+                .id(slot.getId())
+                .weekId(slot.getWeek().getId())
+                .courseId(slot.getCourse().getId())
+                .courseName(slot.getCourse().getName())
+                .moduleId(module.getId())
+                .moduleName(module.getName())
+                .trainerId(trainer.getId())
+                .trainerName(trainer.getName())
+                .dayOfWeek(slot.getDayOfWeek().name())
+                .slotNumber(slot.getSlotNumber())
+                .build();
+    }
 }
