@@ -19,7 +19,7 @@ public class TimetableController {
     private final TimetableService timetableService;
 
     @GetMapping("/student/{studentId}")
-    public ResponseEntity<List<TimetableResponse>> getStudentTimetable(@PathVariable Long studentId) {
+    public ResponseEntity<List<TimetableResponse>> getStudentTimetable(@PathVariable("studentId") Long studentId) {
         return ResponseEntity.ok(timetableService.getStudentTimetable(studentId));
     }
 }

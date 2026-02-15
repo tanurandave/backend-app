@@ -32,18 +32,33 @@ public class CourseController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CourseResponse> getCourseById(@PathVariable Long id) {
+    public ResponseEntity<CourseResponse> getCourseById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(courseService.getCourseById(id));
     }
 
     @PostMapping("/{courseId}/modules")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ModuleResponse> addModule(@PathVariable Long courseId, @Valid @RequestBody ModuleRequest request) {
+    public ResponseEntity<ModuleResponse> addModule(@PathVariable("courseId") Long courseId,
+            @Valid @RequestBody ModuleRequest request) {
         return ResponseEntity.ok(courseService.addModule(courseId, request));
     }
 
     @GetMapping("/{courseId}/modules")
-    public ResponseEntity<List<ModuleResponse>> getModulesByCourseId(@PathVariable Long courseId) {
+    public ResponseEntity<List<ModuleResponse>> getModulesByCourseId(@PathVariable("courseId") Long courseId) {
         return ResponseEntity.ok(courseService.getModulesByCourseId(courseId));
+    }
+
+    @PutMapping("/{courseId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Object> updateCourse(@PathVariable("courseId") Long courseId,
+            @Valid @RequestBody CourseRequest request) {
+        return ResponseEntity.ok(courseService.updateCourse(courseId, request));
+    }
+
+    @DeleteMapping("/{courseId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteCourse(@PathVariable("courseId") Long courseId) {
+        courseService.deleteCourse(courseId);
+        return ResponseEntity.noContent().build();
     }
 }

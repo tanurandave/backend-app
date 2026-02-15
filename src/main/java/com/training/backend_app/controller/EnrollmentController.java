@@ -33,13 +33,14 @@ public class EnrollmentController {
     }
 
     @GetMapping("/student/{studentId}")
-    public ResponseEntity<List<EnrollmentResponse>> getEnrollmentsByStudentId(@PathVariable Long studentId) {
+    public ResponseEntity<List<EnrollmentResponse>> getEnrollmentsByStudentId(
+            @PathVariable("studentId") Long studentId) {
         return ResponseEntity.ok(enrollmentService.getEnrollmentsByStudentId(studentId));
     }
 
     @GetMapping("/course/{courseId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<EnrollmentResponse>> getEnrollmentsByCourseId(@PathVariable Long courseId) {
+    public ResponseEntity<List<EnrollmentResponse>> getEnrollmentsByCourseId(@PathVariable("courseId") Long courseId) {
         return ResponseEntity.ok(enrollmentService.getEnrollmentsByCourseId(courseId));
     }
 
@@ -50,7 +51,7 @@ public class EnrollmentController {
     }
 
     @GetMapping("/student/{studentId}/courses")
-    public ResponseEntity<List<CourseResponse>> getStudentCourses(@PathVariable Long studentId) {
+    public ResponseEntity<List<CourseResponse>> getStudentCourses(@PathVariable("studentId") Long studentId) {
         return ResponseEntity.ok(enrollmentService.getStudentCourses(studentId));
     }
 }

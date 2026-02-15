@@ -33,23 +33,25 @@ public class SchedulingController {
 
     @PostMapping("/weeks/{weekId}/slots")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<SlotResponse> createSlot(@PathVariable Long weekId, @Valid @RequestBody SlotRequest request) {
+    public ResponseEntity<SlotResponse> createSlot(@PathVariable("weekId") Long weekId,
+            @Valid @RequestBody SlotRequest request) {
         return ResponseEntity.ok(schedulingService.createSlot(weekId, request));
     }
 
     @GetMapping("/weeks/{weekId}/slots")
-    public ResponseEntity<List<SlotResponse>> getSlotsByWeekId(@PathVariable Long weekId) {
+    public ResponseEntity<List<SlotResponse>> getSlotsByWeekId(@PathVariable("weekId") Long weekId) {
         return ResponseEntity.ok(schedulingService.getSlotsByWeekId(weekId));
     }
 
     @GetMapping("/trainers/{trainerId}/slots")
-    public ResponseEntity<List<SlotResponse>> getSlotsByTrainerId(@PathVariable Long trainerId) {
+    public ResponseEntity<List<SlotResponse>> getSlotsByTrainerId(@PathVariable("trainerId") Long trainerId) {
         return ResponseEntity.ok(schedulingService.getSlotsByTrainerId(trainerId));
     }
 
     @PutMapping("/weeks/{weekId}/slots/{slotId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<SlotResponse> updateSlot(@PathVariable Long weekId, @PathVariable Long slotId, @Valid @RequestBody SlotRequest request) {
+    public ResponseEntity<SlotResponse> updateSlot(@PathVariable("weekId") Long weekId,
+            @PathVariable("slotId") Long slotId, @Valid @RequestBody SlotRequest request) {
         return ResponseEntity.ok(schedulingService.updateSlot(slotId, request));
     }
 }
