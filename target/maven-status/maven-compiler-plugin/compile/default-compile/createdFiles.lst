@@ -18,6 +18,7 @@ com\training\backend_app\service\UserService.class
 com\training\backend_app\dto\PasswordResetResponse$PasswordResetResponseBuilder.class
 com\training\backend_app\dto\EnrollmentRequest$EnrollmentRequestBuilder.class
 com\training\backend_app\dto\UserResponse$UserResponseBuilder.class
+com\training\backend_app\exception\GlobalExceptionHandler.class
 com\training\backend_app\dto\SlotRequest.class
 com\training\backend_app\entity\User$Role.class
 com\training\backend_app\controller\StatsController.class
