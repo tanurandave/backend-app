@@ -61,4 +61,24 @@ public class CourseController {
         courseService.deleteCourse(courseId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{courseId}/trainers")
+    public ResponseEntity<List<com.training.backend_app.dto.UserResponse>> getTrainersByCourseId(
+            @PathVariable("courseId") Long courseId) {
+        return ResponseEntity.ok(courseService.getTrainersByCourseId(courseId));
+    }
+
+    @DeleteMapping("/modules/{moduleId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteModule(@PathVariable("moduleId") Long moduleId) {
+        courseService.deleteModule(moduleId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/modules/{moduleId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ModuleResponse> updateModule(@PathVariable("moduleId") Long moduleId,
+            @Valid @RequestBody ModuleRequest request) {
+        return ResponseEntity.ok(courseService.updateModule(moduleId, request));
+    }
 }

@@ -22,4 +22,6 @@ public class CourseRequest {
     @NotNull(message = "Duration is required")
     @Positive(message = "Duration must be positive")
     private Integer duration;
+
+    private Long primaryTrainerId;
 }

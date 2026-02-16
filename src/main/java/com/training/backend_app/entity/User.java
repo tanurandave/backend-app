@@ -35,6 +35,21 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
+    @Column
+    private String phone;
+
+    @Column
+    private String experience;
+
+    @Column
+    private String specialization;
+
+    @Column(length = 1000)
+    private String bio;
+
+    @Column
+    private String qualification;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

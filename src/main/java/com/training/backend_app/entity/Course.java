@@ -35,6 +35,10 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Module> modules;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "primary_trainer_id")
+    private User primaryTrainer;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

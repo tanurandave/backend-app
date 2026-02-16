@@ -15,5 +15,6 @@ public class ModuleResponse {
     private String name;
     private String description;
     private Integer duration;
+    private Integer orderNumber;
     private Long courseId;
 }

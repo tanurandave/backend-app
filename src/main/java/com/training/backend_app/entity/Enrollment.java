@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "enrollments", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"student_id", "course_id"})
+        @UniqueConstraint(columnNames = { "student_id", "course_id" })
 })
 @Data
 @Builder
@@ -34,4 +34,13 @@ public class Enrollment {
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime enrolledAt;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private EnrollmentStatus status;
+
+    public enum EnrollmentStatus {
+        PENDING,
+        APPROVED,
+        REJECTED
+    }
 }

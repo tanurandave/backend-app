@@ -7,10 +7,13 @@ E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\controller\
 E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\dto\BulkEnrollRequest.java
 E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\repository\SlotRepository.java
 E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\dto\UserResponse.java
+E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\controller\NotificationController.java
 E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\dto\LoginRequest.java
+E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\entity\Notification.java
 E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\dto\CourseRequest.java
 E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\service\AuthService.java
 E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\dto\PasswordResetResponse.java
+E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\dto\NotificationResponse.java
 E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\dto\WeekResponse.java
 E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\service\TimetableService.java
 E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\controller\AuthController.java
@@ -18,6 +21,7 @@ E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\entity\Week
 E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\service\UserService.java
 E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\dto\AuthResponse.java
 E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\dto\BulkUploadResponse.java
+E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\repository\NotificationRepository.java
 E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\security\CustomUserDetailsService.java
 E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\dto\EnrollmentRequest.java
 E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\controller\SchedulingController.java
@@ -25,6 +29,7 @@ E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\controller\
 E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\repository\CourseRepository.java
 E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\security\CustomUserDetails.java
 E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\repository\WeekRepository.java
+E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\service\NotificationService.java
 E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\controller\EnrollmentController.java
 E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\security\JwtAuthenticationFilter.java
 E:\nexanova\task2\backend-app\src\main\java\com\training\backend_app\dto\ModuleRequest.java

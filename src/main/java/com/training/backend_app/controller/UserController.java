@@ -3,6 +3,7 @@ package com.training.backend_app.controller;
 import com.training.backend_app.dto.BulkUploadResponse;
 import com.training.backend_app.entity.User;
 import com.training.backend_app.repository.UserRepository;
+import com.training.backend_app.service.NotificationService;
 import com.training.backend_app.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ public class UserController {
     private final UserRepository userRepository;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final NotificationService notificationService;
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -50,7 +52,12 @@ public class UserController {
     @PostMapping("/bulk-upload")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BulkUploadResponse> bulkUploadStudents(@RequestParam("file") MultipartFile file) {
-        return ResponseEntity.ok(userService.bulkUploadStudents(file));
+        BulkUploadResponse response = userService.bulkUploadStudents(file);
+        if (response.getSuccessfulRecords() > 0) {
+            notificationService
+                    .notifyAdmins("Bulk upload completed: " + response.getSuccessfulRecords() + " students added.");
+        }
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
@@ -64,21 +71,35 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<User> createUser(@RequestBody User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return ResponseEntity.ok(userRepository.save(user));
+        User savedUser = userRepository.save(user);
+        notificationService
+                .notifyAdmins("New " + savedUser.getRole().name().toLowerCase() + " created: " + savedUser.getName());
+        return ResponseEntity.ok(savedUser);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TRAINER')")
     public ResponseEntity<User> updateUser(@PathVariable("id") Long id, @RequestBody User userDetails) {
         return userRepository.findById(id)
                 .map(user -> {
                     user.setName(userDetails.getName());
                     user.setEmail(userDetails.getEmail());
+                    user.setPhone(userDetails.getPhone());
+                    user.setExperience(userDetails.getExperience());
+                    user.setSpecialization(userDetails.getSpecialization());
+                    user.setBio(userDetails.getBio());
+                    user.setQualification(userDetails.getQualification());
+
                     if (userDetails.getPassword() != null && !userDetails.getPassword().isEmpty()) {
                         user.setPassword(passwordEncoder.encode(userDetails.getPassword()));
                     }
-                    user.setRole(userDetails.getRole());
-                    return ResponseEntity.ok(userRepository.save(user));
+                    if (userDetails.getRole() != null) {
+                        user.setRole(userDetails.getRole());
+                    }
+                    User updatedUser = userRepository.save(user);
+                    notificationService.notifyAdmins(
+                            "User updated: " + updatedUser.getName() + " (" + updatedUser.getRole() + ")");
+                    return ResponseEntity.ok(updatedUser);
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -86,10 +107,10 @@ public class UserController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable("id") Long id) {
-        if (userRepository.existsById(id)) {
-            userRepository.deleteById(id);
-            return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.notFound().build();
+        return userRepository.findById(id).map(user -> {
+            userRepository.delete(user);
+            notificationService.notifyAdmins("User deleted: " + user.getName() + " (" + user.getRole() + ")");
+            return ResponseEntity.ok().<Void>build();
+        }).orElse(ResponseEntity.notFound().build());
     }
 }

@@ -18,5 +18,8 @@ public class EnrollmentResponse {
     private String studentName;
     private Long courseId;
     private String courseName;
+    private String courseDescription;
+    private Integer courseDuration;
     private LocalDateTime enrolledAt;
+    private String status;
 }

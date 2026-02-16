@@ -22,4 +22,8 @@ public class ModuleRequest {
     @NotNull(message = "Duration is required")
     @Positive(message = "Duration must be positive")
     private Integer duration;
+
+    @NotNull(message = "Order number is required")
+    @Positive(message = "Order number must be positive")
+    private Integer orderNumber;
 }

@@ -18,6 +18,7 @@ public class CourseResponse {
     private String name;
     private String description;
     private Integer duration;
+    private String primaryTrainerName;
     private List<ModuleResponse> modules;
     private LocalDateTime createdAt;
 }
