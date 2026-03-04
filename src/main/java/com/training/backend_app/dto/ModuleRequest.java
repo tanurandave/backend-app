@@ -1,0 +1,29 @@
+package com.training.backend_app.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ModuleRequest {
+
+    @NotBlank(message = "Module name is required")
+    private String name;
+
+    private String description;
+
+    @NotNull(message = "Duration is required")
+    @Positive(message = "Duration must be positive")
+    private Integer duration;
+
+    @NotNull(message = "Order number is required")
+    @Positive(message = "Order number must be positive")
+    private Integer orderNumber;
+}

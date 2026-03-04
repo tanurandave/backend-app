@@ -1,0 +1,296 @@
+package com.training.backend_app.service;
+
+import com.training.backend_app.dto.SlotRequest;
+import com.training.backend_app.dto.SlotResponse;
+import com.training.backend_app.dto.WeekRequest;
+import com.training.backend_app.dto.WeekResponse;
+import com.training.backend_app.entity.Course;
+import com.training.backend_app.entity.Module;
+import com.training.backend_app.entity.Slot;
+import com.training.backend_app.entity.User;
+import com.training.backend_app.entity.Week;
+import com.training.backend_app.repository.CourseRepository;
+import com.training.backend_app.repository.ModuleRepository;
+import com.training.backend_app.repository.SlotRepository;
+import com.training.backend_app.repository.UserRepository;
+import com.training.backend_app.repository.WeekRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.DayOfWeek;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class SchedulingService {
+
+        private final WeekRepository weekRepository;
+        private final SlotRepository slotRepository;
+        private final CourseRepository courseRepository;
+        private final ModuleRepository moduleRepository;
+        private final UserRepository userRepository;
+
+        @Transactional
+        public WeekResponse createWeek(WeekRequest request) {
+                Week week = Week.builder()
+                                .name("Week " + request.getWeekNumber())
+                                .weekNumber(request.getWeekNumber())
+                                .build();
+
+                weekRepository.save(week);
+
+                return WeekResponse.builder()
+                                .id(week.getId())
+                                .name(week.getName())
+                                .weekNumber(week.getWeekNumber())
+                                .build();
+        }
+
+        public List<WeekResponse> getAllWeeks() {
+                return weekRepository.findAll().stream()
+                                .map(week -> WeekResponse.builder()
+                                                .id(week.getId())
+                                                .name(week.getName())
+                                                .weekNumber(week.getWeekNumber())
+                                                .build())
+                                .collect(Collectors.toList());
+        }
+
+        @Transactional
+        public SlotResponse createSlot(Long weekId, SlotRequest request) {
+                Week week = weekRepository.findById(weekId)
+                                .orElseThrow(() -> new RuntimeException("Week not found"));
+
+                Course course = courseRepository.findById(request.getCourseId())
+                                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+                Module module = moduleRepository.findById(request.getModuleId())
+                                .orElseThrow(() -> new RuntimeException("Module not found"));
+
+                User trainer = userRepository.findById(request.getTrainerId())
+                                .orElseThrow(() -> new RuntimeException("Trainer not found"));
+
+                if (trainer.getRole() != User.Role.TRAINER) {
+                        throw new RuntimeException("User is not a trainer");
+                }
+
+                DayOfWeek dayOfWeek = DayOfWeek.valueOf(request.getDayOfWeek().toUpperCase());
+
+                boolean trainerBooked = slotRepository.existsByWeekIdAndTrainerIdAndDayOfWeekAndSlotNumber(
+                                weekId, request.getTrainerId(), dayOfWeek, request.getSlotNumber());
+
+                if (trainerBooked) {
+                        throw new RuntimeException("Trainer is already booked for this slot");
+                }
+
+                // Determine times based on slot number
+                String startTime, endTime;
+                switch (request.getSlotNumber()) {
+                        case 1:
+                                startTime = "08:00";
+                                endTime = "11:00";
+                                break;
+                        case 2:
+                                startTime = "11:00";
+                                endTime = "14:00";
+                                break;
+                        case 3:
+                                startTime = "14:00";
+                                endTime = "17:00";
+                                break;
+                        case 4:
+                                startTime = "17:00";
+                                endTime = "20:00";
+                                break;
+                        default:
+                                throw new RuntimeException("Invalid slot number");
+                }
+
+                Slot slot = Slot.builder()
+                                .week(week)
+                                .course(course)
+                                .module(module)
+                                .trainer(trainer)
+                                .dayOfWeek(dayOfWeek)
+                                .slotNumber(request.getSlotNumber())
+                                .startTime(startTime)
+                                .endTime(endTime)
+                                .notes(request.getNotes())
+                                .build();
+
+                slotRepository.save(slot);
+
+                return SlotResponse.builder()
+                                .id(slot.getId())
+                                .weekId(week.getId())
+                                .courseId(course.getId())
+                                .courseName(course.getName())
+                                .moduleId(module.getId())
+                                .moduleName(module.getName())
+                                .trainerId(trainer.getId())
+                                .trainerName(trainer.getName())
+                                .dayOfWeek(slot.getDayOfWeek().name())
+                                .slotNumber(slot.getSlotNumber())
+                                .startTime(slot.getStartTime())
+                                .endTime(slot.getEndTime())
+                                .notes(slot.getNotes())
+                                .build();
+        }
+
+        public List<SlotResponse> getSlotsByWeekId(Long weekId) {
+                return slotRepository.findByWeekId(weekId).stream()
+                                .map(slot -> SlotResponse.builder()
+                                                .id(slot.getId())
+                                                .weekId(slot.getWeek() != null ? slot.getWeek().getId() : null)
+                                                .courseId(slot.getCourse() != null ? slot.getCourse().getId() : null)
+                                                .courseName(slot.getCourse() != null ? slot.getCourse().getName()
+                                                                : "N/A")
+                                                .moduleId(slot.getModule() != null ? slot.getModule().getId() : null)
+                                                .moduleName(slot.getModule() != null ? slot.getModule().getName()
+                                                                : "N/A")
+                                                .trainerId(slot.getTrainer() != null ? slot.getTrainer().getId() : null)
+                                                .trainerName(slot.getTrainer() != null ? slot.getTrainer().getName()
+                                                                : "N/A")
+                                                .dayOfWeek(slot.getDayOfWeek() != null ? slot.getDayOfWeek().name()
+                                                                : null)
+                                                .slotNumber(slot.getSlotNumber())
+                                                .startTime(slot.getStartTime())
+                                                .endTime(slot.getEndTime())
+                                                .build())
+                                .collect(Collectors.toList());
+        }
+
+        public List<SlotResponse> getSlotsByTrainerId(Long trainerId) {
+                return slotRepository.findByTrainerId(trainerId).stream()
+                                .map(slot -> SlotResponse.builder()
+                                                .id(slot.getId())
+                                                .weekId(slot.getWeek() != null ? slot.getWeek().getId() : null)
+                                                .courseId(slot.getCourse() != null ? slot.getCourse().getId() : null)
+                                                .courseName(slot.getCourse() != null ? slot.getCourse().getName()
+                                                                : "N/A")
+                                                .moduleId(slot.getModule() != null ? slot.getModule().getId() : null)
+                                                .moduleName(slot.getModule() != null ? slot.getModule().getName()
+                                                                : "N/A")
+                                                .trainerId(slot.getTrainer() != null ? slot.getTrainer().getId() : null)
+                                                .trainerName(slot.getTrainer() != null ? slot.getTrainer().getName()
+                                                                : "N/A")
+                                                .dayOfWeek(slot.getDayOfWeek() != null ? slot.getDayOfWeek().name()
+                                                                : null)
+                                                .slotNumber(slot.getSlotNumber())
+                                                .startTime(slot.getStartTime())
+                                                .endTime(slot.getEndTime())
+                                                .build())
+                                .collect(Collectors.toList());
+        }
+
+        @Transactional
+        public SlotResponse updateSlot(Long slotId, SlotRequest request) {
+                Slot slot = slotRepository.findById(slotId)
+                                .orElseThrow(() -> new RuntimeException("Slot not found"));
+
+                Module module = moduleRepository.findById(request.getModuleId())
+                                .orElseThrow(() -> new RuntimeException("Module not found"));
+
+                User trainer = userRepository.findById(request.getTrainerId())
+                                .orElseThrow(() -> new RuntimeException("Trainer not found"));
+
+                if (trainer.getRole() != User.Role.TRAINER) {
+                        throw new RuntimeException("User is not a trainer");
+                }
+
+                // Check if trainer is already booked for this slot (excluding current slot)
+                DayOfWeek dayOfWeek = DayOfWeek.valueOf(request.getDayOfWeek().toUpperCase());
+
+                boolean trainerBooked = slotRepository.findByTrainerAndDayAndSlot(
+                                request.getTrainerId(), dayOfWeek, request.getSlotNumber())
+                                .filter(s -> !s.getId().equals(slotId))
+                                .isPresent();
+
+                if (trainerBooked) {
+                        throw new RuntimeException("Trainer is already booked for this slot");
+                }
+
+                // Determine times based on slot number
+                String startTime, endTime;
+                switch (request.getSlotNumber()) {
+                        case 1:
+                                startTime = "08:00";
+                                endTime = "11:00";
+                                break;
+                        case 2:
+                                startTime = "11:00";
+                                endTime = "14:00";
+                                break;
+                        case 3:
+                                startTime = "14:00";
+                                endTime = "17:00";
+                                break;
+                        case 4:
+                                startTime = "17:00";
+                                endTime = "20:00";
+                                break;
+                        default:
+                                throw new RuntimeException("Invalid slot number");
+                }
+
+                // Update slot
+                slot.setModule(module);
+                slot.setTrainer(trainer);
+                slot.setDayOfWeek(dayOfWeek);
+                slot.setSlotNumber(request.getSlotNumber());
+                slot.setStartTime(startTime);
+                slot.setEndTime(endTime);
+                slot.setNotes(request.getNotes());
+
+                slotRepository.save(slot);
+
+                return SlotResponse.builder()
+                                .id(slot.getId())
+                                .weekId(slot.getWeek().getId())
+                                .courseId(slot.getCourse().getId())
+                                .courseName(slot.getCourse().getName())
+                                .moduleId(module.getId())
+                                .moduleName(module.getName())
+                                .trainerId(trainer.getId())
+                                .trainerName(trainer.getName())
+                                .dayOfWeek(slot.getDayOfWeek().name())
+                                .slotNumber(slot.getSlotNumber())
+                                .startTime(slot.getStartTime())
+                                .endTime(slot.getEndTime())
+                                .notes(slot.getNotes())
+                                .build();
+        }
+
+        @Transactional
+        public SlotResponse updateNotes(Long slotId, String notes) {
+                Slot slot = slotRepository.findById(slotId)
+                                .orElseThrow(() -> new RuntimeException("Slot not found"));
+                slot.setNotes(notes);
+                slotRepository.save(slot);
+                return SlotResponse.builder()
+                                .id(slot.getId())
+                                .weekId(slot.getWeek().getId())
+                                .courseId(slot.getCourse().getId())
+                                .courseName(slot.getCourse().getName())
+                                .moduleId(slot.getModule().getId())
+                                .moduleName(slot.getModule().getName())
+                                .trainerId(slot.getTrainer().getId())
+                                .trainerName(slot.getTrainer().getName())
+                                .dayOfWeek(slot.getDayOfWeek().name())
+                                .slotNumber(slot.getSlotNumber())
+                                .startTime(slot.getStartTime())
+                                .endTime(slot.getEndTime())
+                                .notes(slot.getNotes())
+                                .build();
+        }
+
+        @Transactional
+        public void deleteSlot(Long slotId) {
+                if (!slotRepository.existsById(slotId)) {
+                        throw new RuntimeException("Slot not found");
+                }
+                slotRepository.deleteById(slotId);
+        }
+}
