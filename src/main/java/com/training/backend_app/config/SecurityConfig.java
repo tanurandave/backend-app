@@ -42,7 +42,7 @@ public class SecurityConfig {
                         .frameOptions(frame -> frame.disable()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/users/bulk-upload").permitAll()
+                        .requestMatchers("/api/users/bulk-upload").hasRole("ADMIN")
                         .requestMatchers("/api/courses/*/syllabus").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/trainer/**").hasRole("TRAINER")
@@ -59,7 +59,11 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration
-                .setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:3001", "http://localhost:5173"));
+                .setAllowedOrigins(List.of(
+                        "http://localhost:3000",
+                        "http://localhost:3001",
+                        "http://localhost:5173",
+                        "https://frontend-app-z5g5.vercel.app"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
