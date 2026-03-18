@@ -46,9 +46,9 @@ public class AuthController {
     /**
      * Step 1: Send OTP to the provided email address.
      */
-    @PostMapping("/send-otp")
-    public ResponseEntity<OtpResponse> sendOtp(@Valid @RequestBody OtpRequest request) {
-        logger.info("OTP send request for email={}", request.getEmail());
+    @PostMapping("/forgot-password")
+    public ResponseEntity<OtpResponse> forgotPassword(@Valid @RequestBody OtpRequest request) {
+        logger.info("Forgot password request (send OTP) for email={}", request.getEmail());
         return ResponseEntity.ok(otpService.sendOtp(request));
     }
 
@@ -64,8 +64,9 @@ public class AuthController {
     /**
      * Step 3: Reset the password (only allowed after OTP is verified).
      */
-    @PostMapping("/forgot-password")
-    public ResponseEntity<PasswordResetResponse> forgotPassword(@Valid @RequestBody PasswordResetRequest request) {
+    @PostMapping("/reset-password")
+    public ResponseEntity<PasswordResetResponse> resetPassword(@Valid @RequestBody PasswordResetRequest request) {
+        logger.info("Reset password request for email={}", request.getEmail());
         return ResponseEntity.ok(authService.resetPassword(request));
     }
 }

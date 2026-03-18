@@ -39,6 +39,16 @@ public class User {
     private String phone;
 
     @Column
+    private String otp;
+
+    @Column
+    private LocalDateTime otpExpiry;
+
+    @Builder.Default
+    @Column
+    private Boolean otpVerified = false;
+
+    @Column
     private String experience;
 
     @Column
@@ -56,6 +66,10 @@ public class User {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    public boolean isOtpVerified() {
+        return Boolean.TRUE.equals(otpVerified);
+    }
 
     public enum Role {
         ADMIN,

@@ -3,6 +3,7 @@ package com.training.backend_app.service;
 import com.training.backend_app.dto.OtpRequest;
 import com.training.backend_app.dto.OtpResponse;
 import com.training.backend_app.dto.OtpVerifyRequest;
+import com.training.backend_app.entity.User;
 import com.training.backend_app.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -15,8 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -33,25 +32,6 @@ public class OtpService {
     @Value("${otp.expiry.minutes:10}")
     private int otpExpiryMinutes;
 
-    // In-memory OTP store: email -> OtpEntry
-    private final Map<String, OtpEntry> otpStore = new ConcurrentHashMap<>();
-
-    private static final class OtpEntry {
-        final String otp;
-        final LocalDateTime expiresAt;
-        boolean verified;
-
-        OtpEntry(String otp, int expiryMinutes) {
-            this.otp = otp;
-            this.expiresAt = LocalDateTime.now().plusMinutes(expiryMinutes);
-            this.verified = false;
-        }
-
-        boolean isExpired() {
-            return LocalDateTime.now().isAfter(expiresAt);
-        }
-    }
-
     /**
      * Generates a 6-digit OTP and attempts to email it.
      * If SMTP is not configured, falls back to console logging (dev mode).
@@ -60,14 +40,17 @@ public class OtpService {
         String email = request.getEmail().trim().toLowerCase();
 
         // Verify the user exists
-        userRepository.findByEmail(email)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("No account found with this email address"));
 
         // Generate 6-digit OTP
         String otp = generateOtp();
 
-        // Store OTP (always, regardless of email success)
-        otpStore.put(email, new OtpEntry(otp, otpExpiryMinutes));
+        // Store OTP in User entity
+        user.setOtp(otp);
+        user.setOtpExpiry(LocalDateTime.now().plusMinutes(otpExpiryMinutes));
+        user.setOtpVerified(false);
+        userRepository.save(user);
 
         // Attempt to send email; fall back to console on failure
         boolean emailSent = trySendOtpEmail(email, otp);
@@ -99,23 +82,27 @@ public class OtpService {
         String email = request.getEmail().trim().toLowerCase();
         String otpInput = request.getOtp().trim();
 
-        OtpEntry entry = otpStore.get(email);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (entry == null) {
+        if (user.getOtp() == null) {
             throw new RuntimeException("No OTP found for this email. Please request a new one.");
         }
 
-        if (entry.isExpired()) {
-            otpStore.remove(email);
+        if (user.getOtpExpiry().isBefore(LocalDateTime.now())) {
+            user.setOtp(null);
+            user.setOtpExpiry(null);
+            userRepository.save(user);
             throw new RuntimeException("OTP has expired. Please request a new one.");
         }
 
-        if (!entry.otp.equals(otpInput)) {
+        if (!user.getOtp().equals(otpInput)) {
             throw new RuntimeException("Invalid OTP. Please try again.");
         }
 
-        // Mark as verified (allow password reset)
-        entry.verified = true;
+        // Mark as verified
+        user.setOtpVerified(true);
+        userRepository.save(user);
 
         return OtpResponse.builder()
                 .success(true)
@@ -128,15 +115,23 @@ public class OtpService {
      * reset.
      */
     public boolean isOtpVerified(String email) {
-        OtpEntry entry = otpStore.get(email.trim().toLowerCase());
-        return entry != null && entry.verified && !entry.isExpired();
+        return userRepository.findByEmail(email.trim().toLowerCase())
+                .map(user -> user.isOtpVerified() && 
+                            user.getOtpExpiry() != null && 
+                            user.getOtpExpiry().isAfter(LocalDateTime.now()))
+                .orElse(false);
     }
 
     /**
      * Clears OTP entry after successful password reset.
      */
     public void clearOtp(String email) {
-        otpStore.remove(email.trim().toLowerCase());
+        userRepository.findByEmail(email.trim().toLowerCase()).ifPresent(user -> {
+            user.setOtp(null);
+            user.setOtpExpiry(null);
+            user.setOtpVerified(false);
+            userRepository.save(user);
+        });
     }
 
     // ── Private helpers
