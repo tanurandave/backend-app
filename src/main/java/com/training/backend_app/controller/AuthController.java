@@ -52,6 +52,13 @@ public class AuthController {
         return ResponseEntity.ok(otpService.sendOtp(request));
     }
 
+    // New endpoint for sending OTP (alias for forgot-password)
+    @PostMapping("/send-otp")
+    public ResponseEntity<OtpResponse> sendOtp(@Valid @RequestBody OtpRequest request) {
+        logger.info("Send OTP request (alias) for email={}", request.getEmail());
+        return ResponseEntity.ok(otpService.sendOtp(request));
+    }
+
     /**
      * Step 2: Verify the OTP entered by the user.
      */
