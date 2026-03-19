@@ -40,7 +40,6 @@ com\training\backend_app\dto\SlotRequest$SlotRequestBuilder.class
 com\training\backend_app\dto\NotificationResponse.class
 com\training\backend_app\controller\TimetableController.class
 com\training\backend_app\dto\EnrollmentResponse$EnrollmentResponseBuilder.class
-com\training\backend_app\service\OtpService$OtpEntry.class
 com\training\backend_app\repository\ModuleRepository.class
 com\training\backend_app\dto\AuthResponse.class
 com\training\backend_app\entity\Module$ModuleBuilder.class
