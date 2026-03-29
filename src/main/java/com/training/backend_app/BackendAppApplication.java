@@ -30,25 +30,28 @@ public class BackendAppApplication {
     @Bean
     public CommandLineRunner initData(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
-            String adminEmail = "admin@example.com";
+            String adminEmail = "trainerhubadmin@gmail.com";
             Optional<User> admin = userRepository.findByEmail(adminEmail);
 
             if (admin.isEmpty()) {
                 User newAdmin = User.builder()
                         .name("Administrator")
                         .email(adminEmail)
-                        .password(passwordEncoder.encode("StrongPass123!"))
+                        .password(passwordEncoder.encode("Tadmin@123"))
                         .role(User.Role.ADMIN)
                         .build();
                 userRepository.save(newAdmin);
                 System.out.println("Default admin created: " + adminEmail);
+                System.out.println("Default admin password reset for: " + adminEmail);
+
             } else {
                 // Ensure password is correct and hashed properly
                 User existingAdmin = admin.get();
-                existingAdmin.setPassword(passwordEncoder.encode("StrongPass123!"));
+                existingAdmin.setPassword(passwordEncoder.encode("Tadmin@123"));
                 existingAdmin.setRole(User.Role.ADMIN); // Ensure role is ADMIN
                 userRepository.save(existingAdmin);
                 System.out.println("Default admin password reset for: " + adminEmail);
+                System.out.println("pass:" + passwordEncoder.encode("Tadmin@123"));
             }
         };
     }
