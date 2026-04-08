@@ -3,7 +3,6 @@ com\training\backend_app\entity\Course$CourseBuilder.class
 com\training\backend_app\entity\Module.class
 com\training\backend_app\dto\OtpResponse$OtpResponseBuilder.class
 com\training\backend_app\dto\PasswordResetRequest$PasswordResetRequestBuilder.class
-com\training\backend_app\repository\EnrollmentRepository.class
 com\training\backend_app\dto\SlotResponse.class
 com\training\backend_app\entity\Slot.class
 com\training\backend_app\controller\SchedulingController.class
@@ -40,11 +39,9 @@ com\training\backend_app\dto\SlotRequest$SlotRequestBuilder.class
 com\training\backend_app\dto\NotificationResponse.class
 com\training\backend_app\controller\TimetableController.class
 com\training\backend_app\dto\EnrollmentResponse$EnrollmentResponseBuilder.class
-com\training\backend_app\repository\ModuleRepository.class
 com\training\backend_app\dto\AuthResponse.class
 com\training\backend_app\entity\Module$ModuleBuilder.class
 com\training\backend_app\entity\Enrollment$EnrollmentBuilder.class
-com\training\backend_app\security\CustomUserDetailsService.class
 com\training\backend_app\dto\UserResponse.class
 com\training\backend_app\service\EnrollmentService.class
 com\training\backend_app\dto\WeekResponse.class

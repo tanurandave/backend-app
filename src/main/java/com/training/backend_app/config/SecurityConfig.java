@@ -64,7 +64,7 @@ public class SecurityConfig {
                         "http://localhost:3001",
                         "http://localhost:5173",
                         "https://*.vercel.app",
-                        "https://frontend-app123-delta.vercel.app"));
+                        "https://tranier-hub-frontend-app.vercel.app"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
